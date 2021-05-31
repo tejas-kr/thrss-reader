@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    NEWS
+{% endblock %}
+
+{% block head %}
+
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        
+        <div class="display-1" style="display: block; text-align: center;">
+            <h1 style="font-family: Georgia, 'Times New Roman', Times, serif; border-bottom: 5px solid; margin: 15px;">NEW READER APP</h1>
+        </div>
+
+        <div>
+            <figure class="text-center">
+                <blockquote class="blockquote">
+                  <p>A very user-friendly app to read news as you like.</p>
+                </blockquote>
+                <figcaption class="blockquote-footer">
+                  Heard somewhere <cite title="Source Title">In the World</cite>
+                </figcaption>
+              </figure>
+              
+        </div>
+
+        <div style="text-align: center;">
+            <p>This app will allow you to read news as you like.</p>
+        </div>
+
+        <div style="text-align: center;">
+            <p><small>Choose one topic from the below. The appriviations are standard - </small></p>
+            <ul class="nav justify-content-center">
+                {% for k,v in rss_links_dict.items %}
+                
+        
+                <li class="nav-item">
+                <a class="nav-link" href="{% url 'news' k %}">{{ k }}</a>
+                </li>
+        
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="text-center">
+            <img src="/static/img/news.jpg" class="rounded img-thumbnail" alt="...">
+        </div>
+    
+
+    </div>
+{% endblock %}

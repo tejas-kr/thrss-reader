@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+{% block title %}
+    HOME
+{% endblock %}
+
+{% block head %}
+
+
+
+{% endblock %}
+
+{% block content %}
+
+    <ul class="nav">
+        {% for k,v in rss_links_dict.items %}
+        
+
+        <li class="nav-item">
+        <a class="nav-link" href="{% url 'news' k %}">{{ k }}</a>
+        </li>
+
+        {% endfor %}
+    </ul>
+
+    <ul class="nav justify-content-end">
+
+        <li class="nav-item">
+            <a class="nav-link s_data" href="" id="all_news">All News</a>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link s_data" href="" id="pos_news">Positive News</a>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link s_data" href="" id="neg_news">Negative News</a>
+        </li>
+
+    </ul>
+
+    <img src="/static/img/tenor.gif" id="spinner" alt="loading..." style="display: none;" />
+
+    <div id="articles">
+
+        {% for k,v in all_data_dict.items %}
+
+        <h4>{{ k }}</h4>
+        <a href="{{ v.link }}">{{ v.link }}</a>
+        <p>{{ v.desc }}</p>
+
+
+        {% endfor %}
+
+    </div>
+
+
+{% endblock %}
+
+{% block main_script %}
+
+
+{% csrf_token %}
+<script>
+const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+</script>
+
+<script>
+
+    $.ajaxSetup({
+        beforeSend: function(xhr, status) {
+            // TODO: show spinner
+            $('#spinner').show();
+        },
+        complete: function() {
+            // TODO: hide spinner
+            $('#spinner').hide();
+        }
+    });
+
+    var type = '{{ type }}'
+    $('.s_data').click(function (e) {
+        e.preventDefault()
+
+        var id = $(this).attr('id')
+        
+        var process = 'all'
+        if (id == 'pos_news') {
+            process = 'pos'
+        } else if (id == 'neg_news') {
+            process = 'neg'
+        }
+
+        $.ajax({
+            url: "{% url 'nlp' type %}",
+            type: 'POST',
+            headers: {
+                'X-CSRFToken': csrftoken
+            },
+            data: {
+                process: process
+            },
+            dataType: 'json',
+            success: function (result) {
+                
+                console.log(result)
+
+                var html = ''
+                for (var key in result) {             
+                    if(id == 'pos_news') {
+                        if (result[key]['sentiment'] == 2) {
+                            html += `<h4>${key}</h4>
+                            <a href="${result[key]['link']}">${result[key]['link']}</a>
+                            <p>${result[key]['desc']}</p>`
+                        }
+                    } else if (id == 'neg_news') {
+                        if (result[key]['sentiment'] == 1) {
+                            html += `<h4>${key}</h4>
+                            <a href="${result[key]['link']}">${result[key]['link']}</a>
+                            <p>${result[key]['desc']}</p>`
+                        }
+                    } else {
+                        html += `<h4>${key}</h4>
+                        <a href="${result[key]['link']}">${result[key]['link']}</a>
+                        <p>${result[key]['desc']}</p>`
+                    }
+                }
+                
+                $('#articles').html(html)
+            },
+            error: function() {
+                console.log('Error occured');
+            }
+        })   
+    })
+
+</script>
+
+{% endblock %}
